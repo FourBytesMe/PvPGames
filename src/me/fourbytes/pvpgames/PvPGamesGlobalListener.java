@@ -1,3 +1,6 @@
+/*
+ * This file is the event listener file, it is always active.
+ */
 package me.fourbytes.pvpgames;
 
 import org.bukkit.Bukkit;
@@ -49,7 +52,6 @@ public class PvPGamesGlobalListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		Player p = event.getPlayer();
 		World w = Bukkit.getWorld(lobbyworld);
 		event.setRespawnLocation(new Location(w, w.getSpawnLocation().getBlockX(), 128, w.getSpawnLocation().getBlockZ()));
 	}

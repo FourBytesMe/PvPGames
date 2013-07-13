@@ -1,3 +1,6 @@
+/*
+ * This file is the event listener file, it is only active while a game is in progress
+ */
 package me.fourbytes.pvpgames;
 
 import org.bukkit.entity.Entity;
@@ -11,9 +14,9 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PvPGamesListener implements Listener {
+public class PvPGamesGameListener implements Listener {
 	
-    public PvPGamesListener(PvPGamesBase plugin) {
+    public PvPGamesGameListener(PvPGamesBase plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
     

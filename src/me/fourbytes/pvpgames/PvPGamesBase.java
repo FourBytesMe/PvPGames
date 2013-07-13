@@ -1,14 +1,16 @@
+/*
+ * This file is the main file where most of the timing is called,
+ * if anyone wants to move timing to another file to clean it up, then they can, just
+ * submit a pull request and I'll accept it.
+ */
 package me.fourbytes.pvpgames;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,48 +26,45 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class PvPGamesBase extends JavaPlugin {
 
+	// Set some variables
 	public static Boolean inProgress = false;
-
 	public int readyTime;
 	public int gameTime;
 	public int maxGameTime;
-
 	public String pvpworld;
 	public String lobbyworld;
-	
 	public static ArrayList<Player> playingplayers = new ArrayList<Player>();
-
+	public static ArrayList<Player> ignoreFallDamage = new ArrayList<Player>();
 	public static BukkitTask readyTimer;
 	private BukkitTask gameTimer;
-
-	public static ArrayList<Player> ignoreFallDamage = new ArrayList<Player>();
-
 	private Integer cooldownOnStartup;
 
 	@Override
 	public void onEnable(){	
+		// Get some config options.
 		cooldownOnStartup = getConfig().getInt("General.Startup.StartupCooldown");
 		lobbyworld = getConfig().getString("Worlds.LobbyWorld");
 		pvpworld = getConfig().getString("Worlds.PvPWorld");
 
-		deleteWorld(pvpworld);
-		createWorld(pvpworld);
+		// Reset world.
+		resetWorld(pvpworld);
 
 		// Save Default Configuration
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 
-		new PvPGamesListener(this);
+		// Setup listeners.
+		new PvPGamesGameListener(this);
 		new PvPGamesGlobalListener(this, lobbyworld);
 
-		getLogger().info("Waiting for " + cooldownOnStartup + " seconds before first game after reboot");
-
+		// And finally, start the game.
 		readyGame(cooldownOnStartup);
 	}
 
 
 	@Override
 	public void onDisable() {
+		// Unload the world so we don't get world saving errors on shutdown
 		Bukkit.unloadWorld(pvpworld, false);
 	}
 
@@ -75,12 +74,14 @@ public class PvPGamesBase extends JavaPlugin {
 		readyTimer = Bukkit.getScheduler().runTaskTimer(this, new BukkitRunnable() {
 			@Override
 			public void run() {
+				// Keep all worlds daytime while a game isn't running.
+				// TODO: Move this to a seperate function and keep lobby world daytime even when world is running.
 				Iterator<World> worlds = getServer().getWorlds().iterator();
-
 				while(worlds.hasNext()) {
 					worlds.next().setTime(6000);
 				}
-
+				
+				// Startup timing.
 				if( (readyTime % 10) == 0 && readyTime != 0 && readyTime != 10) {
 					Bukkit.broadcastMessage(ChatColor.GRAY + "The game will begin in " + readyTime + " seconds! Make sure to select a kit with /kit.");
 				} else if((readyTime % 60) == 0 && readyTime != 0 && readyTime != 10) {
@@ -104,12 +105,13 @@ public class PvPGamesBase extends JavaPlugin {
 	}
 
 	public void startGame() {
-		// Set max game length
+		// Reset max game length to the config setting
 		maxGameTime = getConfig().getInt("General.Game.MaxGameLength");
 
-		// Set current game length
+		// Reset current game length to 0
 		gameTime = 0;
 		
+		// Add playing players to arrays, clear inventories and teleport the player to the pvpworld
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			playingplayers.add(p);
 			ignoreFallDamage.add(p);
@@ -119,9 +121,9 @@ public class PvPGamesBase extends JavaPlugin {
 			p.getInventory().setLeggings(null);
 			p.getInventory().setBoots(null);
 			p.teleport(new Location(Bukkit.getWorld(pvpworld), Bukkit.getWorld(pvpworld).getSpawnLocation().getBlockX(), 128, Bukkit.getWorld(pvpworld).getSpawnLocation().getBlockZ()));
-			// Add players to playing players list.
 		}
 
+		// TODO: Replace this with a Bukkit scheduler.
 		Timer fallTimer = new Timer();
 		fallTimer.schedule(new TimerTask() {
 			@Override
@@ -155,13 +157,10 @@ public class PvPGamesBase extends JavaPlugin {
 	public void deleteWorld(final String file) {
 		getLogger().info("Deleting world: " + pvpworld);
 
-		/*try {
-			FileUtils.deleteDirectory(new File(file + File.separator));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
+		// Delete the world folder.
 		deleteWorldFile(new File(file + File.separator));
 
+		// Delete the player files, probably not necessary, will remove later, I don't want to break anything right now.
 		for(File f: new File("world/players").listFiles()) {
 			f.delete();
 		}
@@ -191,7 +190,8 @@ public class PvPGamesBase extends JavaPlugin {
 	}
 
 	public void resetWorld(final String world) {
-		Bukkit.getServer().getScheduler().runTask(this, new Runnable() {
+		// Run deleteWorld() and createWorld() in Runnables so that they actually work.
+		Bukkit.getServer().getScheduler().runTask(this, new BukkitRunnable() {
 			@Override
 			public void run() {
 				if(Bukkit.unloadWorld(world, false))
@@ -199,7 +199,7 @@ public class PvPGamesBase extends JavaPlugin {
 				deleteWorld(world);
 			}
 		});
-		Bukkit.getServer().getScheduler().runTask(this, new Runnable() {
+		Bukkit.getServer().getScheduler().runTask(this, new BukkitRunnable() {
 			@Override
 			public void run() {
 				createWorld(world);
@@ -207,7 +207,10 @@ public class PvPGamesBase extends JavaPlugin {
 		});
 	}
 	
+	// Do some game finishing stuff, will eventually add winner to leaderboard and record scores for the game in a db.
+	// TODO: Do the leaderboard stuff.
 	public boolean endGame(Player winner) {
+		// TODO: Announce the winner
 		inProgress = false;
 		
 		winner.getInventory().clear();
@@ -223,7 +226,9 @@ public class PvPGamesBase extends JavaPlugin {
 		return true;
 	}
 	
+	// All the command stuff
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+		// Get names of players who are still playing, haven't actually tested this.
 		if(cmd.getName().equalsIgnoreCase("playing")){
 			if(sender instanceof Player) {
 				String players = "";
