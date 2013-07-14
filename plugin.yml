@@ -1,3 +1,10 @@
 name: PvPGames
 main: me.fourbytes.pvpgames.PvPGamesBase
-version: 0.0.1
+version: 0.0.2
+commands:
+   playing:
+      description: Lists all currently playing players.
+      usage: /<command>
+   startgame:
+      description: Lists all currently playing players.
+      usage: /<command>

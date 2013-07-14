@@ -9,4 +9,7 @@ General:
 Worlds:
     PvPWorld: pvpworld
     LobbyWorld: world
-    
+    LobbySpawnCoordinates:
+        x: 0
+        y: 128
+        z: 0
