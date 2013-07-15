@@ -99,7 +99,8 @@ public class PvPGamesBase extends JavaPlugin {
         inProgress = false;
 
         Bukkit.broadcastMessage(ChatColor.GOLD + "####################################################");
-        Bukkit.broadcastMessage(ChatColor.GOLD + "  " + winner.getName() + " has won this match! Next match starting soon!");
+        Bukkit.broadcastMessage(ChatColor.GOLD + "# " + winner.getName() + " HAS WON THIS MATCH.");
+        Bukkit.broadcastMessage(ChatColor.GOLD + "# NEXT MATCH STARTING SOON.");
         Bukkit.broadcastMessage(ChatColor.GOLD + "####################################################");
 
         leaderboard.addToWins(winner.getName(), 1);
@@ -116,7 +117,8 @@ public class PvPGamesBase extends JavaPlugin {
         inProgress = false;
 
         Bukkit.broadcastMessage(ChatColor.GOLD + "####################################################");
-        Bukkit.broadcastMessage(ChatColor.GOLD + "# TIME RAN OUT AND NOBODY WON. NEXT MATCH STARTING SOON!  #");
+        Bukkit.broadcastMessage(ChatColor.GOLD + "# TIME RAN OUT AND NOBODY WON. NEXT MATCH STARTING SOON!  ");
+        Bukkit.broadcastMessage(ChatColor.GOLD + "# NEXT MATCH STARTING SOON!  ");
         Bukkit.broadcastMessage(ChatColor.GOLD + "####################################################");
 
         for (String p : playingplayers) {

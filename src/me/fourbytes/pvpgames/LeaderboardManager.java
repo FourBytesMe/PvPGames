@@ -29,6 +29,7 @@ public class LeaderboardManager {
         @SuppressWarnings("unchecked")
         List<Integer> oldscores = (List<Integer>) config.getConfig().getList("leaderboard." + player, Arrays.asList(0, 0, 0));
         config.getConfig().set("leaderboard." + player, Arrays.asList(oldscores.get(0), oldscores.get(1) + k, oldscores.get(2)));
+        save();
     }
 
     /**
@@ -41,6 +42,7 @@ public class LeaderboardManager {
         @SuppressWarnings("unchecked")
         List<Integer> oldscores = (List<Integer>) config.getConfig().getList("leaderboard." + player, Arrays.asList(0, 0, 0));
         config.getConfig().set("leaderboard." + player, Arrays.asList(oldscores.get(0), oldscores.get(1), oldscores.get(2) + k));
+        save();
     }
 
     /**
@@ -53,6 +55,40 @@ public class LeaderboardManager {
         @SuppressWarnings("unchecked")
         List<Integer> oldscores = (List<Integer>) config.getConfig().getList("leaderboard." + player, Arrays.asList(0, 0, 0));
         config.getConfig().set("leaderboard." + player, Arrays.asList(oldscores.get(0) + k, oldscores.get(1), oldscores.get(2)));
+        save();
+    }
+
+    /**
+     * Gets the win count of a specified player.
+     *
+     * @param player Player whos win count to check
+     * @return Returns the amount of wins.
+     */
+    public int getWins(String player) {
+        List<Integer> scores = (List<Integer>) config.getConfig().getList("leaderboard." + player, Arrays.asList(0, 0, 0));
+        return scores.get(0);
+    }
+
+    /**
+     * Gets the kill count of a specified player.
+     *
+     * @param player Player whos kill count to check
+     * @return Returns the amount of kills.
+     */
+    public int getKills(String player) {
+        List<Integer> scores = (List<Integer>) config.getConfig().getList("leaderboard." + player, Arrays.asList(0, 0, 0));
+        return scores.get(1);
+    }
+
+    /**
+     * Gets the death count of a specified player.
+     *
+     * @param player Player whos death count to check
+     * @return Returns the amount of deaths.
+     */
+    public int getDeaths(String player) {
+        List<Integer> scores = (List<Integer>) config.getConfig().getList("leaderboard." + player, Arrays.asList(0, 0, 0));
+        return scores.get(2);
     }
 
     public void save() {

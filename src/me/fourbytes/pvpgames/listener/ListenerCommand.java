@@ -1,6 +1,8 @@
 package me.fourbytes.pvpgames.listener;
 
+import me.fourbytes.pvpgames.LeaderboardManager;
 import me.fourbytes.pvpgames.PvPGamesBase;
+import me.fourbytes.pvpgames.util.ChatUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -50,10 +52,22 @@ public class ListenerCommand implements CommandExecutor {
         if (cmd.getName().equalsIgnoreCase("leaderboard")) {
             if (sender instanceof Player) {
 
-                sender.sendMessage(ChatColor.BLUE + "" + ChatColor.AQUA + "Coming soon!");
+                sender.sendMessage(ChatColor.BOLD + "" + ChatColor.AQUA + "Coming soon!");
             } else {
                 plugin.getLogger().info("/playing can only be run by players.");
             }
+
+            return true;
+        }
+        if (cmd.getName().equalsIgnoreCase("stats")) {
+            String player = sender.getName();
+            if (args.length > 0)
+                player = args[0];
+            LeaderboardManager leaderboard = new LeaderboardManager(plugin);
+            sender.sendMessage(ChatColor.AQUA + "####################################################");
+            sender.sendMessage(ChatColor.AQUA + ChatUtils.centerText(ChatColor.GRAY + "PLAYER STAT'S FOR " + sender.getName(), ChatColor.AQUA + "#"));
+            sender.sendMessage(ChatColor.AQUA + ChatUtils.centerText(ChatColor.GRAY + " WINS: " + leaderboard.getWins(player) + " KILLS: " + leaderboard.getKills(player) + " DEATHS: " + leaderboard.getDeaths(player), ChatColor.AQUA + "#"));
+            sender.sendMessage(ChatColor.AQUA + "####################################################");
 
             return true;
         }
