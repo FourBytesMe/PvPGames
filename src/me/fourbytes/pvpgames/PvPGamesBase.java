@@ -13,14 +13,11 @@ import me.fourbytes.pvpgames.timer.TimerPreGame;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World.Environment;
-import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class PvPGamesBase extends JavaPlugin {
@@ -36,18 +33,16 @@ public class PvPGamesBase extends JavaPlugin {
     public static ArrayList<String> ignoreFallDamage = new ArrayList<String>();
     public static BukkitTask readyTimer;
     public static BukkitTask gameTimer;
-    private Integer cooldownOnStartup;
     public Location spawn;
 
     @Override
     public void onEnable() {
         // Get some config options.
-        cooldownOnStartup = getConfig().getInt("General.Startup.StartupCooldown");
         lobbyWorld = getConfig().getString("Worlds.LobbyWorld");
         pvpWorld = getConfig().getString("Worlds.PvPWorld");
         spawn = new Location(Bukkit.getWorld(lobbyWorld), getConfig().getInt("Worlds.LobbySpawnCoordinates.x"), getConfig().getInt("Worlds.LobbySpawnCoordinates.y"), getConfig().getInt("Worlds.LobbySpawnCoordinates.z"));
         // Reset world.
-        resetWorld(pvpWorld);
+        new WorldReset(this, pvpWorld);
 
         // Save Default Configuration
         getConfig().options().copyDefaults(true);
@@ -75,7 +70,7 @@ public class PvPGamesBase extends JavaPlugin {
         // Reset the time, incase it is being run again.
         readyTime = getConfig().getInt("General.Startup.GameStartCooldown");
 
-        readyTimer = Bukkit.getScheduler().runTaskTimer(this, new TimerPreGame(this), cooldownOnStartup * 20, 20);
+        readyTimer = Bukkit.getScheduler().runTaskTimer(this, new TimerPreGame(this), 0, 20);
     }
 
     public void startGame() {
@@ -106,56 +101,7 @@ public class PvPGamesBase extends JavaPlugin {
         }, 20 * 5);
 
         // Start the game timer, this does all of the checking to find when a game finishes, and counts down to the time limit.
-        gameTimer = Bukkit.getScheduler().runTaskTimer(this, new TimerGame(this), 0, 5 * 20);
-    }
-
-    public void deleteWorld(final String file) {
-        getLogger().info("Deleting world: " + pvpWorld);
-
-        // Delete the world folder.
-        deleteWorldFile(new File(file + File.separator));
-
-        getLogger().info("Deleted world: " + pvpWorld);
-    }
-
-    public boolean deleteWorldFile(File file) {
-        if (file.isDirectory()) {
-            for (File subfile : file.listFiles()) {
-                if (!deleteWorldFile(subfile)) {
-                    return false;
-                }
-            }
-        } else if (!file.delete()) {
-            System.out.println("Failed to delete " + file);
-            return false;
-        }
-        return true;
-    }
-
-    public void createWorld(final String world) {
-        getLogger().info("Creating new world: " + pvpWorld);
-
-        Bukkit.createWorld(new WorldCreator(world).environment(Environment.NORMAL));
-
-        getLogger().info("Created world: " + pvpWorld);
-    }
-
-    public void resetWorld(final String world) {
-        // Run deleteWorld() and createWorld() in Runnables so that they actually work.
-        Bukkit.getServer().getScheduler().runTask(this, new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (Bukkit.unloadWorld(world, false))
-                    getLogger().info("Unloaded world: " + pvpWorld);
-                deleteWorld(world);
-            }
-        });
-        Bukkit.getServer().getScheduler().runTask(this, new BukkitRunnable() {
-            @Override
-            public void run() {
-                createWorld(world);
-            }
-        });
+        gameTimer = Bukkit.getScheduler().runTaskTimer(this, new TimerGame(this), 0, 10 * 20);
     }
 
     // Do some game finishing stuff, will eventually add winner to leaderboard and record scores for the game in a db.
@@ -179,7 +125,7 @@ public class PvPGamesBase extends JavaPlugin {
         winner.setFoodLevel(20);
 
         playingplayers.clear();
-        resetWorld(pvpWorld);
+        new WorldReset(this, pvpWorld);
         readyGame();
     }
 
@@ -197,7 +143,7 @@ public class PvPGamesBase extends JavaPlugin {
         inProgress = false;
         playingplayers.clear();
 
-        resetWorld(pvpWorld);
+        new WorldReset(this, pvpWorld);
         readyGame();
     }
 }

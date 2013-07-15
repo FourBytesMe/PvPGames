@@ -18,7 +18,6 @@ public class TimerPreGame extends BukkitRunnable {
     @Override
     public void run() {
         // Keep all worlds daytime while a game isn't running.
-        // TODO: Move this to a seperate function and keep lobby world daytime even when world is running.
         Iterator<World> worlds = plugin.getServer().getWorlds().iterator();
         while (worlds.hasNext()) {
             worlds.next().setTime(6000);

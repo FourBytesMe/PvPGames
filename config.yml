@@ -1,7 +1,6 @@
 # Default PvpGames Configuration File
 General:
     Startup:
-        StartupCooldown: 10
         GameStartCooldown: 60
         PlayerThreshold: 1
     Game:
