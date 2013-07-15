@@ -3,6 +3,7 @@
  */
 package me.fourbytes.pvpgames.listener;
 
+import me.fourbytes.pvpgames.LeaderboardManager;
 import me.fourbytes.pvpgames.PvPGamesBase;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -10,17 +11,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.*;
 
-public class ListenerGlobalEvent implements Listener {
+/*
+ * ListenerEvent class, The main event listener.
+ *  Fourbytes 2013
+ */
+
+public class ListenerEvent implements Listener {
     public String lobbyWorld;
     public PvPGamesBase plugin;
 
-
-    public ListenerGlobalEvent(PvPGamesBase p, String lb) {
+    public ListenerEvent(PvPGamesBase p, String lb) {
         // Set some variables
         lobbyWorld = lb;
         plugin = p;
@@ -28,11 +35,37 @@ public class ListenerGlobalEvent implements Listener {
     }
 
     @EventHandler
+    public void onPickup(PlayerPickupItemEvent event) {
+        if (!PvPGamesBase.inProgress)
+            if (!event.getPlayer().isOp())
+                event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event) {
+        if (!PvPGamesBase.inProgress)
+            if (!event.getPlayer().isOp())
+                event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (!PvPGamesBase.inProgress)
+            if (!event.getPlayer().isOp())
+                event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!PvPGamesBase.inProgress)
+            if (!event.getPlayer().isOp())
+                event.setCancelled(true);
+    }
+
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.getPlayer().teleport(plugin.spawn);
     }
-
-    // TOUCHOSC RULES
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
@@ -48,6 +81,8 @@ public class ListenerGlobalEvent implements Listener {
                 p.setHealth(20);
                 p.teleport(plugin.spawn);
                 if (PvPGamesBase.inProgress && PvPGamesBase.playingplayers.contains(p.getName())) {
+                    new LeaderboardManager(plugin).addToDeaths(p.getName(), 1);
+
                     PvPGamesBase.playingplayers.remove(((Player) event.getEntity()).getName());
                     int c = PvPGamesBase.playingplayers.size();
                     if (c == 1) {
@@ -62,9 +97,24 @@ public class ListenerGlobalEvent implements Listener {
         }
     }
 
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         event.setRespawnLocation(plugin.spawn);
+    }
+
+    @EventHandler
+    public void onPlayerLogout(PlayerQuitEvent event) {
+        if (PvPGamesBase.playingplayers.contains(event.getPlayer().getName()) && PvPGamesBase.inProgress) {
+            PvPGamesBase.playingplayers.remove(event.getPlayer().getName());
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player && event.getEntity() instanceof Player && PvPGamesBase.inProgress) {
+            if (((Player) event.getEntity()).getHealth() - event.getDamage() < 1 && PvPGamesBase.playingplayers.contains(((Player) event.getEntity()).getName())) {
+                new LeaderboardManager(plugin).addToDeaths(((Player) event.getEntity()).getName(), 1);
+            }
+        }
     }
 }

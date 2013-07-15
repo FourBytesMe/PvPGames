@@ -1,10 +1,16 @@
 name: PvPGames
 main: me.fourbytes.pvpgames.PvPGamesBase
-version: 0.0.2
+version: 0.0.3
 commands:
    playing:
       description: Lists all currently playing players.
       usage: /<command>
    startgame:
-      description: Lists all currently playing players.
+      description: Starts a game early, before the countdown finishes.
       usage: /<command>
+   leaderboard:
+      description: Lists the top 5 players and their scores.
+      usage: /<command>
+   stats:
+      description: Shows the stats of the player specified.
+      usage: /<command> <playername>

@@ -1,0 +1,6 @@
+# Default leaderboard file, first number wins, second number kills, third number deaths.
+leaderboard:
+  _8Bit:
+  - 0
+  - 0
+  - 0

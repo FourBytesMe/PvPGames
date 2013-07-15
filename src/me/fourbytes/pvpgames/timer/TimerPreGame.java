@@ -8,6 +8,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Iterator;
 
+/*
+ * TimerPreGame class, the countdown timer that is run before starting the game.
+ *  Fourbytes 2013
+ */
+
 public class TimerPreGame extends BukkitRunnable {
     public PvPGamesBase plugin;
 
@@ -35,7 +40,6 @@ public class TimerPreGame extends BukkitRunnable {
         } else if (plugin.readyTime <= 0) {
             if (Bukkit.getOnlinePlayers().length >= plugin.getConfig().getInt("General.Startup.PlayerThreshold")) {
                 plugin.readyTime = plugin.getConfig().getInt("General.Startup.GameStartCooldown");
-                Bukkit.broadcastMessage(String.valueOf(plugin.readyTime));
                 PvPGamesBase.readyTimer.cancel();
                 PvPGamesBase.inProgress = true;
                 Bukkit.broadcastMessage(ChatColor.RED + "The games have begun!");

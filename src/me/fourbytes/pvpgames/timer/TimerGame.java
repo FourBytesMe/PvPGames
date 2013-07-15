@@ -17,12 +17,9 @@ public class TimerGame extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (PvPGamesBase.playingplayers.size() < 1) {
-            plugin.endGame();
-        }
         // Startup timing.
         currentGameTime = plugin.maxGameTime - plugin.gameTime;
-        if (plugin.gameTime <= plugin.maxGameTime && currentGameTime > 0) {
+        if (plugin.gameTime <= plugin.maxGameTime && currentGameTime > 0 && PvPGamesBase.playingplayers.size() > 0) {
             if (currentGameTime == 60) {
                 Bukkit.broadcastMessage(ChatColor.BLUE + "Time left: " + (currentGameTime / 60) + " minute.");
             } else if ((currentGameTime % 60) == 0 && currentGameTime != 0 && currentGameTime != 10) {
@@ -35,7 +32,8 @@ public class TimerGame extends BukkitRunnable {
                     public void run() {
                         if (c <= 1)
                             Bukkit.getServer().getScheduler().cancelTask(countdown);
-                        Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "The game will end in " + c + " seconds!");
+                        if (PvPGamesBase.inProgress)
+                            Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "The game will end in " + c + " seconds!");
                         c--;
                     }
                 }, 0L, 20L);
